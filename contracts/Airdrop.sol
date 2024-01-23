@@ -9,23 +9,26 @@ contract Airdrop is Ownable {
     using Math for uint;
 
     address public tokenAddress;
-    uint256 public _maxAirdropAmount;
-    uint256 public _currentAirdropAmount;
+    uint256 public maxAirdropAmount;
+    uint256 public currentAirdropAmount;
 
     mapping(address => bool) public _processedAirdrop;
 
     event EtherTransfer(address beneficiary, uint amount);
 
   
-    constructor(address _tokenAddr, address _owner) Ownable(_owner) {
+    constructor(address _tokenAddr, address _owner, uint256 _maxAirdropAmount) Ownable(_owner) {
         tokenAddress = _tokenAddr;
+        maxAirdropAmount = _maxAirdropAmount;
     }
 
     function dropTokens(address[] memory _recipients, uint256[] memory _amount) public onlyOwner returns (bool) {
 
         for (uint i =0; i< _recipients.length; i++) {
             require(_recipients[i] != address(0));
-            require(HusKyToken(tokenAddress).transfer(_recipients[0], _amount[i]));
+            require(HusKyToken(tokenAddress).balanceOf(msg.sender) >= _amount[i], "Insufficient balance for airdrop");
+            require(HusKyToken(tokenAddress).transfer(_recipients[0], _amount[i]), "Token transfer failed");
+            currentAirdropAmount = currentAirdropAmount - _amount[i];
         }
 
         return true;
@@ -50,8 +53,6 @@ contract Airdrop is Ownable {
         return true;
     }
 
-    
-
     function updateTokenAddress(address newTokenAddress) public onlyOwner {
         tokenAddress = newTokenAddress;
     }
@@ -64,14 +65,13 @@ contract Airdrop is Ownable {
         beneficiary.transfer(address(this).balance);
     }
 
-    function getMaxAirdropAmount() external view returns (uint256) {
-        return _maxAirdropAmount;
-    }
-
     function getCurrentAirdropAmount() external view returns (uint256) {
-        return _currentAirdropAmount;
+        return currentAirdropAmount;
     }
 
-
+    function getBalanceOfSender() public view returns (uint256) {
+        IERC20 token = IERC20(tokenAddress);
+        return token.balanceOf(msg.sender);
+    }
 
 }

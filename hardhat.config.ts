@@ -4,8 +4,10 @@ require("dotenv").config();
 import "@nomicfoundation/hardhat-toolbox";
 
 const privateKey = process.env.PRIVATE_KEY || "";
-console.log(privateKey);
 const config: HardhatUserConfig = {
+  paths: {
+    artifacts: "./artifacts",
+  },
   solidity: "0.8.20",
   defaultNetwork: "manta",
   networks: {
