@@ -3,38 +3,33 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Token.sol";
 
 contract Airdrop is Ownable {
     using Math for uint;
 
     address public tokenAddress;
-    uint256 public maxAirdropAmount;
-    uint256 public currentAirdropAmount;
-
-    mapping(address => bool) public _processedAirdrop;
 
     event EtherTransfer(address beneficiary, uint amount);
 
-  
-    constructor(address _tokenAddr, address _owner, uint256 _maxAirdropAmount) Ownable(_owner) {
+    constructor(address _tokenAddr, address _owner) Ownable(_owner) {
         tokenAddress = _tokenAddr;
-        maxAirdropAmount = _maxAirdropAmount;
     }
 
-    function dropTokens(address[] memory _recipients, uint256[] memory _amount) public onlyOwner returns (bool) {
+    function airdropTokens(address[] memory _recipients, uint256[] memory _amount) public onlyOwner returns (bool) {
+        IERC20 token = IERC20(tokenAddress);
 
-        for (uint i =0; i< _recipients.length; i++) {
+        for (uint i = 0; i < _recipients.length; i++) {
             require(_recipients[i] != address(0));
-            require(HusKyToken(tokenAddress).balanceOf(msg.sender) >= _amount[i], "Insufficient balance for airdrop");
-            require(HusKyToken(tokenAddress).transfer(_recipients[0], _amount[i]), "Token transfer failed");
-            currentAirdropAmount = currentAirdropAmount - _amount[i];
+            require(token.balanceOf(msg.sender) >= _amount[i], "Insufficient balance for airdrop");
+            require(token.transfer(_recipients[i], _amount[i]), "Token transfer failed");
         }
 
         return true;
     }
 
-    function dropEther(address[] memory _recipients, uint256[] memory _amount) public payable onlyOwner returns (bool) {
+    function airdropEther(address[] memory _recipients, uint256[] memory _amount) public payable onlyOwner returns (bool) {
         uint total = 0 ;
 
         for (uint j = 0; j < _amount.length; j++) {
@@ -65,13 +60,8 @@ contract Airdrop is Ownable {
         beneficiary.transfer(address(this).balance);
     }
 
-    function getCurrentAirdropAmount() external view returns (uint256) {
-        return currentAirdropAmount;
+    function getContractBalance() public view returns (uint256) {
+        return IERC20(tokenAddress).balanceOf(address(this));
     }
-
-    function getBalanceOfSender() public view returns (uint256) {
-        IERC20 token = IERC20(tokenAddress);
-        return token.balanceOf(msg.sender);
-    }
-
 }
+
