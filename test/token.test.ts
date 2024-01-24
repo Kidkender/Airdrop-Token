@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Token } from "../typechain-types"; 
+import { Token } from "../typechain-types";
 import * as hre from "hardhat";
 
 describe("Token contract", function () {
@@ -8,17 +8,16 @@ describe("Token contract", function () {
 
   before(async function () {
     [owner] = await hre.ethers.getSigners();
-    console.log("Owner address: ", owner.address); 
+    console.log("Owner address: ", owner.address);
 
-    const huskyToken = await hre.ethers.deployContract("Token",[owner.address]);
+    huskyToken = await hre.ethers.deployContract("Token", [owner.address]);
     await huskyToken.waitForDeployment();
 
     console.log("Token deployed successfully to: ", huskyToken.target);
-    console.log("Husky token: ", huskyToken);
+    return huskyToken;
   });
 
   it("Deployment should assign the total supply of tokens to the owner", async function () {
-    // const ownerBalance = await huskyToken.balanceOf(owner.address);
     const ownerBalance = await huskyToken.balanceOf(owner.address);
     expect(await huskyToken.totalSupply()).to.equal(ownerBalance);
   });
