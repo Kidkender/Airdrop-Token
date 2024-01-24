@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import "./Token.sol";
 
 contract Airdrop is Ownable {
@@ -26,6 +27,17 @@ contract Airdrop is Ownable {
             require(token.transfer(_recipients[i], _amount[i]), "Token transfer failed");
         }
 
+        return true;
+    }
+
+    function airdropSameValue(address[] memory _recipients, uint256 _amount) public onlyOwner returns (bool) {
+        IERC20 token = IERC20(tokenAddress);
+        for (uint i = 0; i< _recipients.length; i++) 
+        {
+            require(_recipients[i] != address(0));
+            require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance for airdrop");
+            require(token.transfer(_recipients[i], _amount), "Token transfer failed");
+        }
         return true;
     }
 
