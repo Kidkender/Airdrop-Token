@@ -1,19 +1,24 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { HusKyToken } from "../typechain-types"; // Update the path based on your project structure
+import { Token } from "../typechain-types"; 
+import * as hre from "hardhat";
 
-describe("HusKyToken contract", function () {
-  let huskyToken: HusKyToken;
+describe("Token contract", function () {
+  let huskyToken: Token;
   let owner: any;
 
   before(async function () {
-    const HuskyToken = await ethers.getContractFactory("HusKyToken");
-    [owner] = await ethers.getSigners();
-    huskyToken = await HuskyToken.deploy(owner.address);
-    console.log("HuskyToken deployed successfully");
+    [owner] = await hre.ethers.getSigners();
+    console.log("Owner address: ", owner.address); 
+
+    const huskyToken = await hre.ethers.deployContract("Token",[owner.address]);
+    await huskyToken.waitForDeployment();
+
+    console.log("Token deployed successfully to: ", huskyToken.target);
+    console.log("Husky token: ", huskyToken);
   });
 
   it("Deployment should assign the total supply of tokens to the owner", async function () {
+    // const ownerBalance = await huskyToken.balanceOf(owner.address);
     const ownerBalance = await huskyToken.balanceOf(owner.address);
     expect(await huskyToken.totalSupply()).to.equal(ownerBalance);
   });

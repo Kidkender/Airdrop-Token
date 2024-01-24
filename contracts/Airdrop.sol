@@ -65,7 +65,7 @@ contract Airdrop is Ownable {
     }
 
     function withdrawToken(address beneficiary) public onlyOwner {
-        require(HusKyToken(tokenAddress).transfer(beneficiary, HusKyToken(tokenAddress).balanceOf(address(this))));
+        require(Token(tokenAddress).transfer(beneficiary, Token(tokenAddress).balanceOf(address(this))));
     }
 
     function withdrawEther(address payable beneficiary) public onlyOwner {
