@@ -9,6 +9,10 @@ npx hardhat help
 npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
-npx hardhat run scripts/deploy.ts
+### Deploy smart contract token
+npx hardhat run --network manta scripts/deploy-token.ts
+### Deploy smart contract airdrop
+npx hardhat run --network manta scripts/deploy-airdrop.ts
 ```
+
 # Airdrop-Token
